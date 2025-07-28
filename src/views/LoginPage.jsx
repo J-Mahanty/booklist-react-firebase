@@ -13,7 +13,7 @@ import {
 function LoginPage() {
 
   const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [loginType, setLoginType] = useState('login');
   const [error, setError] = useState('');
   const [userCredentials, setUserCredentials] = useState();
@@ -23,6 +23,9 @@ function LoginPage() {
       dispatch(setUser({id: user.uid, email: user.email}));
     } else {
       dispatch(setUser(null)); 
+    }
+    if(isLoading){
+      setIsLoading(false);
     }
   })
 
