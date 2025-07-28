@@ -1,10 +1,36 @@
 import FullPageLoader from '../components/FullPageLoader.jsx';
 import {useState} from 'react';
-
+import { auth } from '../firebase/config.js';
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword 
+} from 'firebase/auth';
 
 function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [loginType, setLoginType] = useState('login');
+  const [error, setError] = useState('');
+  const [userCredentials, setUserCredentials] = useState();
+
+  function handleCredentials(e){
+    setUserCredentials({...userCredentials, [e.target.name]: e.target.value});
+  }
+
+  function handleSignUp(e) {
+    e.preventDefault();
+    setError("");
+
+    createUserWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      console.log(user);
+    })
+    .catch((error) => {
+      setError(error.message);
+    });
+  }
+
+  
 
   
     return (
@@ -30,17 +56,23 @@ function LoginPage() {
             <form className="add-form login">
                   <div className="form-control">
                       <label>Email *</label>
-                      <input type="text" name="email" placeholder="Enter your email" />
+                      <input onChange={(e) => {handleCredentials(e)}} type="text" name="email" placeholder="Enter your email" />
                   </div>
                   <div className="form-control">
                       <label>Password *</label>
-                      <input type="password" name="password" placeholder="Enter your password" />
+                      <input onChange={(e) => {handleCredentials(e)}} type="password" name="password" placeholder="Enter your password" />
                   </div>
                   {
                     loginType == 'login' ?
                     <button className="active btn btn-block">Login</button>
                     : 
-                    <button className="active btn btn-block">Sign Up</button>
+                    <button onClick={(e)=>{handleSignUp(e)}} className="active btn btn-block">Sign Up</button>
+                  }
+
+                  {error &&
+
+                  <div className="error">{error}</div>
+
                   }
 
                   <p className="forgot-password">Forgot Password?</p>
