@@ -2,7 +2,7 @@ import FullPageLoader from '../components/FullPageLoader.jsx';
 import {useState} from 'react';
 import { auth } from '../firebase/config.js';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../store/UsersSlice.js';
+import { setUser } from '../store/usersSlice.js';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
