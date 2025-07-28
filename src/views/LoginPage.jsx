@@ -30,6 +30,19 @@ function LoginPage() {
     });
   }
 
+  function handleLogin(e) {
+    e.preventDefault();
+    setError("");
+
+    signInWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
+    .then((userCredential) => {
+      console.log(userCredential.user);
+    })
+    .catch((error) => {
+      setError(error.message);
+    });
+  }
+
   
 
   
@@ -64,9 +77,9 @@ function LoginPage() {
                   </div>
                   {
                     loginType == 'login' ?
-                    <button className="active btn btn-block">Login</button>
+                    <button onClick={(e) => {handleLogin(e)}} className="active btn btn-block">Login</button>
                     : 
-                    <button onClick={(e)=>{handleSignUp(e)}} className="active btn btn-block">Sign Up</button>
+                    <button onClick={(e) => {handleSignUp(e)}} className="active btn btn-block">Sign Up</button>
                   }
 
                   {error &&
