@@ -1,6 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { db, auth } from '../firebase/config.js';
-import { collection, query, where, getDocs, doc, updateDoc} from 'firebase/firestore';
+import { 
+  collection,
+  query, 
+  where, 
+  getDocs, 
+  doc, 
+  updateDoc,
+  deleteDoc,
+  addDoc
+} from 'firebase/firestore';
 
 export const booksSlice = createSlice({
   name: 'books',
@@ -9,14 +18,14 @@ export const booksSlice = createSlice({
     status: 'idle'
   },
   reducers: {
-    addBook: (books, action) => {
-      let newBook = action.payload;
-      newBook.id = books.length ? Math.max(...books.map(book => book.id)) + 1 : 1;
-      books.push(newBook);
-    },
-    eraseBook: (books, action) => {
-        return books.filter(book => book.id != action.payload);
-    },
+    // addBook: (books, action) => {
+    //   let newBook = action.payload;
+    //   newBook.id = books.length ? Math.max(...books.map(book => book.id)) + 1 : 1;
+    //   books.push(newBook);
+    // },
+    // eraseBook: (books, action) => {
+    //     return books.filter(book => book.id != action.payload);
+    // },
     // toggleRead: (books, action) => {
     //     books.map(book => {
     //       if (book.id == action.payload) {
@@ -49,10 +58,23 @@ export const booksSlice = createSlice({
         state.status = 'failed'
         console.log("failed")
       })
+      .addCase(eraseBook.fulfilled, (state, action) => {
+        state.books = state.books.filter(book => book.id != action.payload)
+      })
+      .addCase(eraseBook.rejected, (state, action) => {
+        state.status = 'failed'
+        console.log("failed")
+      })
+      .addCase(addBook.fulfilled, (state, action) => {
+        state.books.push(action.payload)
+      })
+      .addCase(addBook.rejected, (state, action) => {
+        state.status = 'failed'
+        console.log("failed")
+      })
   }
 })
 
-export const { addBook, eraseBook } = booksSlice.actions;
 export const selectBooks = state => state.books;
 
 export default booksSlice.reducer;
@@ -74,4 +96,17 @@ export const toggleRead = createAsyncThunk('books/toggleRead' , async(payload) =
     isRead: !payload.isRead
   });
   return payload.id;
+});
+
+export const eraseBook = createAsyncThunk('books/eraseBook' , async(payload) =>{
+  await deleteDoc(doc(db, "books", payload));
+  return payload;
+});
+
+export const addBook = createAsyncThunk('books/addBook' , async(payload) =>{
+  let newBook = payload;
+  newBook.user_id = auth.currentUser.uid;
+  const docRef = await addDoc(collection(db, "books"), newBook);
+  newBook.id = docRef.id;
+  return newBook;
 });
