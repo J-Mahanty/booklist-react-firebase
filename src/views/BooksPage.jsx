@@ -13,8 +13,8 @@ function BooksPage() {
   const bookStatus = useSelector(selectBooks).status;
 
   useEffect(() => {
-    if(bookStatus=='idle'){
-      dispatch(fetchBooks());
+    if(bookStatus =='idle'){
+      dispatch(fetchBooks()); 
     }
   }, []);
     
