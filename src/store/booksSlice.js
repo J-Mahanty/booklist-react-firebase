@@ -18,59 +18,52 @@ export const booksSlice = createSlice({
     status: 'idle'
   },
   reducers: {
-    // addBook: (books, action) => {
-    //   let newBook = action.payload;
-    //   newBook.id = books.length ? Math.max(...books.map(book => book.id)) + 1 : 1;
-    //   books.push(newBook);
-    // },
-    // eraseBook: (books, action) => {
-    //     return books.filter(book => book.id != action.payload);
-    // },
-    // toggleRead: (books, action) => {
-    //     books.map(book => {
-    //       if (book.id == action.payload) {
-    //         book.isRead = !book.isRead;
-    //       }
-    //     });
-    // }
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchBooks.pending, (state, action) => {
-        state.status = 'idle'
-      })
       .addCase(fetchBooks.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.books = action.payload;
       })
+      .addCase(fetchBooks.pending, (state, action) => {
+        state.status = 'loading';
+      })
       .addCase(fetchBooks.rejected, (state, action) => {
-        state.status = 'failed'
-        console.log("failed")
+        state.status = 'failed';
+        console.log("failed");
       })
       .addCase(toggleRead.fulfilled, (state, action) => {
         state.books.map(book => {
           if(book.id == action.payload) {
-            book.isRead = !book.isRead
+            book.isRead = !book.isRead;
           }
         })
       })
       .addCase(toggleRead.rejected, (state, action) => {
-        state.status = 'failed'
-        console.log("failed")
+        state.status = 'failed';
+        console.log("failed");
       })
       .addCase(eraseBook.fulfilled, (state, action) => {
-        state.books = state.books.filter(book => book.id != action.payload)
+        state.books = state.books.filter(book => book.id != action.payload);
+        state.status = 'succeeded';
+      })
+      .addCase(eraseBook.pending, (state, action) => {
+        state.status = 'loading';
       })
       .addCase(eraseBook.rejected, (state, action) => {
-        state.status = 'failed'
-        console.log("failed")
+        state.status = 'failed';
+        console.log("failed");
       })
       .addCase(addBook.fulfilled, (state, action) => {
-        state.books.push(action.payload)
+        state.books.push(action.payload);
+        state.status = 'succeeded';
+      })
+      .addCase(addBook.pending, (state, action) => {
+        state.status = 'loading';
       })
       .addCase(addBook.rejected, (state, action) => {
-        state.status = 'failed'
-        console.log("failed")
+        state.status = 'failed';
+        console.log("failed");
       })
   }
 })
