@@ -90,7 +90,7 @@ return (
           <Notes bookId={id} />
         </div> 
         
-        : fetchStatus == 'succeeded' ?
+        : fetchStatus == 'success' ?
         
         <div>
           <p>Book not found. Click the button above to go back to the list of books.</p>

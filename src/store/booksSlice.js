@@ -22,7 +22,7 @@ export const booksSlice = createSlice({
   extraReducers: builder => {
     builder
       .addCase(fetchBooks.fulfilled, (state, action) => {
-        state.status = 'succeeded';
+        state.status = 'success';
         state.books = action.payload;
       })
       .addCase(fetchBooks.pending, (state, action) => {
@@ -45,7 +45,7 @@ export const booksSlice = createSlice({
       })
       .addCase(eraseBook.fulfilled, (state, action) => {
         state.books = state.books.filter(book => book.id != action.payload);
-        state.status = 'succeeded';
+        state.status = 'success';
       })
       .addCase(eraseBook.pending, (state, action) => {
         state.status = 'loading';
@@ -56,7 +56,7 @@ export const booksSlice = createSlice({
       })
       .addCase(addBook.fulfilled, (state, action) => {
         state.books.push(action.payload);
-        state.status = 'succeeded';
+        state.status = 'success';
       })
       .addCase(addBook.pending, (state, action) => {
         state.status = 'loading';
