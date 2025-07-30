@@ -1,16 +1,16 @@
-
 import {useSelector, useDispatch} from 'react-redux';
 import {selectNotes, eraseNote, addNote} from '../store/notesSlice.js';
 import { useState, useEffect } from 'react';
-import { collection, getDocs, query, where, doc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, deleteDoc, addDoc } from 'firebase/firestore';
 import { db } from '../firebase/config.js';
+import { addListener } from '@reduxjs/toolkit';
 
 
 function Notes({bookId}) {
     
   const dispatch = useDispatch();
   
-  const handleEraseNote =  async(id) => {
+  const handleEraseNote = async(id) => {
     if(confirm('Are you sure you want to erase this note?')) {
       try {
         await deleteDoc(doc(db, "notes", id));
@@ -21,7 +21,7 @@ function Notes({bookId}) {
     }
   }
 
-  function handleAddNote(e) {
+  const handleAddNote = async(e) => {
     e.preventDefault();
 
     const newNote = {
@@ -29,10 +29,17 @@ function Notes({bookId}) {
       title: document.querySelector('input[name=title]').value,
       text: document.querySelector('textarea[name=note]').value
     }
+
     if (newNote.title && newNote.text) {
-        dispatch(addNote(newNote));
+      try{
+        const docRef = await addDoc(collection(db, "notes"), newNote);
+        newNote.id = docRef.id;
+        setNotes([...notes, newNote]);
         document.querySelector('input[name=title]').value = "";
         document.querySelector('textarea[name=note]').value = "";
+      } catch (error) {
+        alert("Error adding note");
+      }
     } else {
         alert('Please fill the mandatory fields.');
     }
