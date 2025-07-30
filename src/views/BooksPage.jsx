@@ -24,7 +24,8 @@ function BooksPage() {
       <div className="container">
           <Header pageTitle={pageTitle} />
           <div className="books-container">
-              { bookStatus == 'loading' ? 'Loading....' :
+              { books.length ? 
+
                 <div className="books-list">
                     
                   {books.map(book => 
@@ -33,6 +34,18 @@ function BooksPage() {
                   
                   )}
 
+                </div>
+
+                :bookStatus == 'loading' ? 
+
+                <div>
+                  <p>Loading....</p>
+                </div>
+
+                :
+
+                <div>
+                  <p>Your book list is empty, start adding books! </p>
                 </div>
               }
           </div>

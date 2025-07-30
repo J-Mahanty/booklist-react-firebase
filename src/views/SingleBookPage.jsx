@@ -1,8 +1,12 @@
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Notes from '../components/Notes.jsx';
-import {useSelector, useDispatch} from 'react-redux';
+import { useDispatch} from 'react-redux';
+import { useState, useEffect } from 'react';
 import {selectBooks, eraseBook, toggleRead} from '../store/booksSlice.js';
 import {eraseBookNotes} from '../store/notesSlice.js';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../firebase/config.js';
+
 
 function SingleBookPage() {
   
@@ -17,64 +21,101 @@ function SingleBookPage() {
     }
   }
 
+  function handleToggleRead(info) {
+    dispatch(toggleRead({id: info.id, isRead: info.isRead}));
+    setBook({...book, isRead: !info.isRead});
+  }
+
+  const fetchBook = async(book_id) =>{
+    try {
+      const docRef = doc(db,"books", book_id);
+      const  docSnap = await getDoc(docRef);
+
+      if( docSnap.exists()) {
+        setBook({...docSnap.data(), id: docSnap.id});
+      }
+
+      setFetchStatus("success");
+
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   const {id} = useParams();
 
-  const books = useSelector(selectBooks).books;
+  const [book, setBook] = useState("");
+  const [fetchStatus, setFetchStatus] = useState("idle");
 
-  const book = books.filter(book => book.id == id)[0];
-    
-    return (
-      <>
-        <div className="container">
-            <Link to="/">
-              <button className="btn">
-                  ← Back to Books
-              </button>
-            </Link>
+useEffect(() => {
+    if(fetchStatus =='idle'){
+      fetchBook(id); 
+    }
+  }, []);
+  
+return (
+  <>
+    <div className="container">
+        <Link to="/">
+          <button className="btn">
+              ← Back to Books
+          </button>
+        </Link>
 
-            {book ?
-            
-            <div>
-              <div className="single-book">
-                <div className="book-cover">
-                    <img src={book.cover} />
-                </div>
-
-                <div className="book-details">
-                    <h3 className="book-title">{ book.title }</h3>
-                    <h4 className="book-author">{ book.author }</h4>
-                    <p>{book.synopsis}</p>
-                    <div className="read-checkbox">
-                        <input 
-                          onClick={()=>{dispatch(toggleRead({id: book.id, isRead: book.isRead}))}}
-                          type="checkbox" 
-                          defaultChecked={book.isRead} />
-                        <label>{ book.isRead ? "Already Read It" : "Haven't Read it yet" }</label>
-                    </div>
-                    <div onClick={()=>handleEraseBook(book.id)} className="erase-book">
-                        Erase book
-                    </div>
-                </div>
-              </div>
-
-              <Notes bookId={id} />
-            </div> 
-            
-            : 
-            
-            <div>
-              <p>Book not found. Click the button above to go back to the list of books.</p>
+        {book ?
+        
+        <div>
+          <div className="single-book">
+            <div className="book-cover">
+                <img src={book.cover} />
             </div>
 
-            }
-            
+            <div className="book-details">
+                <h3 className="book-title">{ book.title }</h3>
+                <h4 className="book-author">{ book.author }</h4>
+                <p>{book.synopsis}</p>
+                <div className="read-checkbox">
+                    <input 
+                      onClick={()=>{handleToggleRead({id: book.id, isRead: book.isRead})}}
+                      type="checkbox" 
+                      defaultChecked={book.isRead} />
+                    <label>{ book.isRead ? "Already Read It" : "Haven't Read it yet" }</label>
+                </div>
+                <div onClick={()=>handleEraseBook(book.id)} className="erase-book">
+                    Erase book
+                </div>
+            </div>
+          </div>
 
+          <Notes bookId={id} />
+        </div> 
+        
+        : fetchStatus == 'succeeded' ?
+        
+        <div>
+          <p>Book not found. Click the button above to go back to the list of books.</p>
         </div>
 
+        : fetchStatus == 'failed' ?
+
+        <div>
+          <p>Error fetching the Book</p>
+        </div>
+        :
+
+        <div>
+          <p>Loading...</p>
+        </div>
+
+        }
         
-      </>
-    )
-  }
-  
-  export default SingleBookPage
+
+    </div>
+
+    
+  </>
+)
+}
+
+export default SingleBookPage
   
