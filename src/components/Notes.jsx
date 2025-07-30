@@ -2,7 +2,7 @@
 import {useSelector, useDispatch} from 'react-redux';
 import {selectNotes, eraseNote, addNote} from '../store/notesSlice.js';
 import { useState, useEffect } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase/config.js';
 
 
@@ -10,9 +10,14 @@ function Notes({bookId}) {
     
   const dispatch = useDispatch();
   
-  function handleEraseNote(id) {
+  const handleEraseNote =  async(id) => {
     if(confirm('Are you sure you want to erase this note?')) {
-      dispatch(eraseNote(id));
+      try {
+        await deleteDoc(doc(db, "notes", id));
+        setNotes(notes.filter(note => note.id != id));  
+      } catch (error) {
+        alert("Error deleting note. Please try again later");
+      }
     }
   }
 
@@ -49,7 +54,7 @@ function Notes({bookId}) {
       } catch (err) {
         console.log(err);
       }
-    }
+  }
 
   useEffect(() => {
     if(fetchStatus =='idle'){
