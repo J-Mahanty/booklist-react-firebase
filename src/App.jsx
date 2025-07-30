@@ -3,7 +3,7 @@ import BooksPage from './views/BooksPage.jsx';
 import SingleBookPage from './views/SingleBookPage.jsx';
 import LoginPage from './views/LoginPage.jsx';
 import AddBookPage from './views/AddBookPage.jsx';
-import { selectUsers } from './store/UsersSlice.js';
+import { selectUsers } from './store/usersSlice.js';
 import { useSelector } from 'react-redux';
 
 function App() {
